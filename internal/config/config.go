@@ -10,15 +10,8 @@ type Config struct {
 
 func Load() *Config {
 	return &Config{
-		DBUrl:     getEnv("DBURL"),
-		JWTSecret: getEnv("JWT_SECRET"),
-		Port:      getEnv("PORT"),
+		DBUrl:     os.Getenv("DBURL"),
+		JWTSecret: os.Getenv("JWT_SECRET"),
+		Port:      os.Getenv("PORT"),
 	}
-}
-
-func getEnv(key string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
-	}
-	return ""
 }

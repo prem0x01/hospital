@@ -2,25 +2,26 @@ package repository
 
 import (
 	"context"
-	"database/sql"
+	//"database/sql"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/prem0x01/hospital/internal/database/queries"
-	"github.com/prem0x01/hospital/internal/models"
+	"github.com/prem0x01/hospital/internal/domain"
 )
 
 type UserRepository struct {
-	db      *sql.DB
+	db      *pgxpool.Pool
 	queries *queries.Queries
 }
 
-func NewUserRepository(db *sql.DB) *UserRepository {
+func NewUserRepository(db *pgxpool.Pool) *UserRepository {
 	return &UserRepository{
 		db:      db,
 		queries: queries.New(db),
 	}
 }
 
-func (r *UserRepository) Create(ctx context.Context, user *models.User) error {
+func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	params := queries.CreateUserParams{
 		Email:        user.Email,
 		PasswordHash: user.PasswordHash,
@@ -35,30 +36,30 @@ func (r *UserRepository) Create(ctx context.Context, user *models.User) error {
 	}
 
 	user.ID = res.ID
-	user.CreatedAt = res.CreatedAt.Time
-	user.UpdatedAt = res.UpdatedAt.Time
+	user.CreatedAt = res.CreatedAt
+	user.UpdatedAt = res.UpdatedAt
 	return nil
 }
 
-func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*models.User, error) {
+func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	res, err := r.queries.GetUserByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
 
-	return &models.User{
+	return &domain.User{
 		ID:           res.ID,
 		Email:        res.Email,
 		PasswordHash: res.PasswordHash,
 		Role:         res.Role,
 		FirstName:    res.FirstName,
 		LastName:     res.LastName,
-		CreatedAt:    res.CreatedAt.Time,
-		UpdatedAt:    res.UpdatedAt.Time,
+		CreatedAt:    res.CreatedAt,
+		UpdatedAt:    res.UpdatedAt,
 	}, nil
 }
 
-func (r *UserRepository) GetByID(ctx context.Context, id int32) (*models.User, error) {
+func (r *UserRepository) GetByID(ctx context.Context, id int32) (*domain.User, error) {
 	res, err := r.queries.GetUserByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -71,8 +72,8 @@ func (r *UserRepository) GetByID(ctx context.Context, id int32) (*models.User, e
 		Role:         res.Role,
 		FirstName:    res.FirstName,
 		LastName:     res.LastName,
-		CreatedAt:    res.CreatedAt.Time,
-		UpdatedAt:    res.UpdatedAt.Time,
+		CreatedAt:    res.CreatedAt,
+		UpdatedAt:    res.UpdatedAt,
 	}, nil
 }
 
@@ -105,22 +106,22 @@ func (r *UserRepository) Delete(ctx context.Context, id int32) error {
 	return r.queries.DeleteUser(ctx, id)
 }
 
-func (r *UserRepository) GetDoctors(ctx context.Context) ([]models.User, error) {
+func (r *UserRepository) GetDoctors(ctx context.Context) ([]domain.User, error) {
 	results, err := r.queries.GetDoctors(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var doctors []models.User
+	var doctors []domain.User
 	for _, d := range results {
-		doctors = append(doctors, models.User{
+		doctors = append(doctors, domain.User{
 			ID:        d.ID,
 			Email:     d.Email,
 			Role:      d.Role,
 			FirstName: d.FirstName,
 			LastName:  d.LastName,
-			CreatedAt: d.CreatedAt.Time,
-			UpdatedAt: d.UpdatedAt.Time,
+			CreatedAt: d.CreatedAt,
+			UpdatedAt: d.UpdatedAt,
 		})
 	}
 

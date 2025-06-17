@@ -1,16 +1,20 @@
 package domain
 
-import "time"
+import (
+	//	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
+)
 
 type User struct {
-	ID           int       `json:"id" db:"id"`
-	Email        string    `json:"email" db:"email"`
-	PasswordHash string    `json:"-" db:"password_hash"`
-	Role         string    `json:"role" db:"role"`
-	FirstName    string    `json:"first_name" db:"first_name"`
-	LastName     string    `json:"last_name" db:"last_name"`
-	CreatedAt    time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
+	ID           int32            `json:"id" db:"id"`
+	Email        string           `json:"email" db:"email"`
+	PasswordHash string           `json:"-" db:"password_hash"`
+	Role         string           `json:"role" db:"role"`
+	FirstName    string           `json:"first_name" db:"first_name"`
+	LastName     string           `json:"last_name" db:"last_name"`
+	CreatedAt    pgtype.Timestamp `json:"created_at" db:"created_at"`
+	UpdatedAt    pgtype.Timestamp `json:"updated_at" db:"updated_at"`
 }
 
 type LoginRequest struct {

@@ -7,6 +7,10 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/prem0x01/hospital/internal/config"
 	"github.com/prem0x01/hospital/internal/database"
+	"github.com/prem0x01/hospital/internal/handlers"
+	"github.com/prem0x01/hospital/internal/middleware"
+	"github.com/prem0x01/hospital/internal/repository"
+	"github.com/prem0x01/hospital/internal/services"
 )
 
 func main() {
@@ -21,13 +25,13 @@ func main() {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
-	if err := database.RunMigrations(db); err != nil {
+	if err := database.RunMigrations(cfg.DBUrl); err != nil {
 		log.Fatal("Failed to run migrations:", err)
 	}
 
-	userRepo := repo.NewUserRepository(db)
-	patientRepo := repo.NewPatientRepository(db)
-	appointmentRepo := repo.NewAppointmentRepository(db)
+	userRepo := repository.NewUserRepository(db)
+	patientRepo := repository.NewPatientRepository(db)
+	appointmentRepo := repository.NewAppointmentRepository(db)
 
 	authService := services.NewAuthService(userRepo, cfg.JWTSecret)
 	patientService := services.NewPatientService(patientRepo)
