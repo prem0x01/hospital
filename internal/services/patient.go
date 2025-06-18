@@ -2,11 +2,13 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/prem0x01/hospital/internal/domain"
 	"github.com/prem0x01/hospital/internal/repository"
+	//"github.com/prem0x01/hospital/internal/utils"
 )
 
 type PatientService struct {
@@ -58,49 +60,59 @@ func (s *PatientService) CreatePatient(req *domain.CreatePatientRequest, created
 	return patient, nil
 }
 
+
 func (s *PatientService) UpdatePatient(id int, req *domain.UpdatePatientRequest) (*domain.Patient, error) {
-	updates := make(map[string]interface{})
+	ctx := context.Background()
+
+	existing, err := s.patientRepo.GetByID(ctx, int32(id))
+	if err != nil {
+		return nil, fmt.Errorf("patient not found: %w", err)
+	}
 
 	if req.FirstName != nil {
-		updates["first_name"] = *req.FirstName
+		existing.FirstName = *req.FirstName
 	}
 	if req.LastName != nil {
-		updates["last_name"] = *req.LastName
+		existing.LastName = *req.LastName
 	}
 	if req.Email != nil {
-		updates["email"] = *req.Email
+		existing.Email = req.Email
 	}
 	if req.Phone != nil {
-		updates["phone"] = *req.Phone
+		existing.Phone = req.Phone
 	}
 	if req.DateOfBirth != nil && *req.DateOfBirth != "" {
 		dob, err := time.Parse("2006-01-02", *req.DateOfBirth)
 		if err != nil {
-			return &domain.Patient{}, err
+			return nil, fmt.Errorf("invalid date_of_birth: %w", err)
 		}
-		updates["date_of_birth"] = dob
+		var pgDob pgtype.Date
+		if err := pgDob.Scan(dob); err != nil {
+			return nil, fmt.Errorf("date scan error: %w", err)
+		}
+		existing.DateOfBirth = pgDob
 	}
+
 	if req.Gender != nil {
-		updates["gender"] = *req.Gender
+		existing.Gender = req.Gender
 	}
 	if req.Address != nil {
-		updates["address"] = *req.Address
+		existing.Address = req.Address
 	}
 	if req.MedicalHistory != nil {
-		updates["medical_history"] = *req.MedicalHistory
+		existing.MedicalHistory = req.MedicalHistory
 	}
 	if req.Allergies != nil {
-		updates["allergies"] = *req.Allergies
+		existing.Allergies = req.Allergies
 	}
 	if req.EmergencyContactName != nil {
-		updates["emergency_contact_name"] = *req.EmergencyContactName
+		existing.EmergencyContactName = req.EmergencyContactName
 	}
 	if req.EmergencyContactPhone != nil {
-		updates["emergency_contact_phone"] = *req.EmergencyContactPhone
+		existing.EmergencyContactPhone = req.EmergencyContactPhone
 	}
-	ctx := context.Background()
 
-	return s.patientRepo.Update(ctx, domain.Patient{})
+	return s.patientRepo.Update(ctx, *existing)
 }
 
 func (s *PatientService) DeletePatient(id int) error {

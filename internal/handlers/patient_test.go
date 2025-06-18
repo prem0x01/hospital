@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// MockPatientService implements the PatientService interface
+
 type MockPatientService struct {
 	mock.Mock
 }

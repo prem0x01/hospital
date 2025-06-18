@@ -53,8 +53,8 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	router.Static("/static", "./web/static")
-	router.LoadHTMLGlob("web/static/*.html")
+	//router.Static("/static", "./web/static")
+	//	router.LoadHTMLGlob("web/static/*.html")
 
 	api := router.Group("/api/v1")
 	{
@@ -89,8 +89,6 @@ func main() {
 			protected.GET("/dashboard/stats", handlers.GetDashboardStats(patientRepo, appointmentRepo))
 		}
 	}
-
-
 
 	log.Printf("Server starting on port %s", cfg.Port)
 	log.Fatal(router.Run(":" + cfg.Port))

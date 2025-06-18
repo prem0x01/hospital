@@ -14,6 +14,7 @@ func Int32Ptr(i int32) *int32 {
 	return &i
 }
 
+
 func TimeToTimestamp(t time.Time) pgtype.Timestamp {
 	return pgtype.Timestamp{
 		Time:  t,

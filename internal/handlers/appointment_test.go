@@ -12,7 +12,6 @@ import (
 	"github.com/prem0x01/hospital/internal/handlers"
 )
 
-// Reuse this mock from earlier
 type MockAppointmentService struct{}
 
 func (m *MockAppointmentService) GetAppointments(limit, offset int, userRole string, userID int) ([]domain.Appointment, error) {
