@@ -48,7 +48,7 @@ func main() {
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"*"},
+		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
@@ -90,19 +90,7 @@ func main() {
 		}
 	}
 
-	// frontend routes
-	router.GET("/", func(c *gin.Context) {
-		c.HTML(200, "index.html", nil)
-	})
-	router.GET("/login", func(c *gin.Context) {
-		c.HTML(200, "login.html", nil)
-	})
-	router.GET("/receptionist", func(c *gin.Context) {
-		c.HTML(200, "receptionist.html", nil)
-	})
-	router.GET("/doctor", func(c *gin.Context) {
-		c.HTML(200, "doctor.html", nil)
-	})
+
 
 	log.Printf("Server starting on port %s", cfg.Port)
 	log.Fatal(router.Run(":" + cfg.Port))
