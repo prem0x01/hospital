@@ -14,10 +14,10 @@ type UserRepository struct {
 	queries *queries.Queries
 }
 
-func NewUserRepository(db *pgxpool.Pool) *UserRepository {
+func NewUserRepository(pool *pgxpool.Pool) *UserRepository {
 	return &UserRepository{
-		db:      db,
-		queries: queries.New(db),
+		db:      pool,
+		queries: queries.New(pool),
 	}
 }
 
@@ -77,7 +77,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id int32) (*domain.User, e
 	}, nil
 }
 
-func (r *UserRepository) Update(ctx context.Context, user *models.User) error {
+func (r *UserRepository) Update(ctx context.Context, user *domain.User) error {
 	params := queries.UpdateUserParams{
 		ID:           user.ID,
 		Email:        &user.Email,
@@ -97,8 +97,8 @@ func (r *UserRepository) Update(ctx context.Context, user *models.User) error {
 	user.Role = res.Role
 	user.FirstName = res.FirstName
 	user.LastName = res.LastName
-	user.CreatedAt = res.CreatedAt.Time
-	user.UpdatedAt = res.UpdatedAt.Time
+	user.CreatedAt = res.CreatedAt
+	user.UpdatedAt = res.UpdatedAt
 	return nil
 }
 

@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"context"
+
 	"github.com/prem0x01/hospital/internal/domain"
 	"github.com/prem0x01/hospital/internal/repository"
 	"github.com/prem0x01/hospital/internal/utils"
@@ -32,7 +33,7 @@ func (s *AuthService) Login(req *domain.LoginRequest) (*domain.AuthResponse, err
 		return nil, errors.New("invalid credentials")
 	}
 
-	token, err := utils.GenerateJWT(user.ID, user.Role, s.jwtSecret)
+	token, err := utils.GenerateJWT(int(user.ID), user.Role, s.jwtSecret)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +68,7 @@ func (s *AuthService) Register(req *domain.RegisterRequest) (*domain.AuthRespons
 		return nil, err
 	}
 
-	token, err := utils.GenerateJWT(user.ID, user.Role, s.jwtSecret)
+	token, err := utils.GenerateJWT(int(user.ID), user.Role, s.jwtSecret)
 	if err != nil {
 		return nil, err
 	}

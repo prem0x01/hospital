@@ -2,9 +2,11 @@ package services
 
 import (
 	"context"
+	"time"
+
 	"github.com/prem0x01/hospital/internal/domain"
 	"github.com/prem0x01/hospital/internal/repository"
-	"time"
+	"github.com/prem0x01/hospital/internal/utils"
 )
 
 type AppointmentService struct {
@@ -42,11 +44,11 @@ func (s *AppointmentService) CreateAppointment(req *domain.CreateAppointmentRequ
 	}
 
 	appointment := &domain.Appointment{
-		PatientID:       req.PatientID,
+		PatientID:       utils.Int32Ptr(req.PatientID),
 		DoctorID:        req.DoctorID,
-		AppointmentDate: appointmentDate,
+		AppointmentDate: utils.TimeToTimestamp(appointmentDate),
 		Notes:           req.Notes,
-		CreatedBy:       &createdBy,
+		CreatedBy:       utils.IintPtrToInt32Ptr(&createdBy),
 	}
 
 	if err := s.appointmentRepo.Create(ctx, appointment); err != nil {

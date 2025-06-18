@@ -2,9 +2,11 @@ package services
 
 import (
 	"context"
+	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/prem0x01/hospital/internal/domain"
 	"github.com/prem0x01/hospital/internal/repository"
-	"time"
 )
 
 type PatientService struct {
@@ -26,6 +28,7 @@ func (s *PatientService) GetPatient(id int) (*domain.Patient, error) {
 }
 
 func (s *PatientService) CreatePatient(req *domain.CreatePatientRequest, createdBy int) (*domain.Patient, error) {
+	createdByInt32 := int32(createdBy)
 	patient := &domain.Patient{
 		FirstName:             req.FirstName,
 		LastName:              req.LastName,
@@ -37,7 +40,7 @@ func (s *PatientService) CreatePatient(req *domain.CreatePatientRequest, created
 		Allergies:             req.Allergies,
 		EmergencyContactName:  req.EmergencyContactName,
 		EmergencyContactPhone: req.EmergencyContactPhone,
-		CreatedBy:             &createdBy,
+		CreatedBy:             &createdByInt32,
 	}
 
 	if req.DateOfBirth != nil && *req.DateOfBirth != "" {
@@ -45,17 +48,17 @@ func (s *PatientService) CreatePatient(req *domain.CreatePatientRequest, created
 		if err != nil {
 			return nil, err
 		}
-		patient.DateOfBirth = &domain.NullDate{Time: dob, Valid: true}
+		patient.DateOfBirth = pgtype.Date{Time: dob, Valid: true}
 	}
 	ctx := context.Background()
-	if _, err := s.patientRepo.Create(ctx, patient); err != nil {
+	if _, err := s.patientRepo.Create(ctx, *patient); err != nil {
 		return nil, err
 	}
 
 	return patient, nil
 }
 
-func (s *PatientService) UpdatePatient(id int, req *domain.UpdatePatientRequest) error {
+func (s *PatientService) UpdatePatient(id int, req *domain.UpdatePatientRequest) (*domain.Patient, error) {
 	updates := make(map[string]interface{})
 
 	if req.FirstName != nil {
@@ -73,7 +76,7 @@ func (s *PatientService) UpdatePatient(id int, req *domain.UpdatePatientRequest)
 	if req.DateOfBirth != nil && *req.DateOfBirth != "" {
 		dob, err := time.Parse("2006-01-02", *req.DateOfBirth)
 		if err != nil {
-			return err
+			return &domain.Patient{}, err
 		}
 		updates["date_of_birth"] = dob
 	}
@@ -97,7 +100,7 @@ func (s *PatientService) UpdatePatient(id int, req *domain.UpdatePatientRequest)
 	}
 	ctx := context.Background()
 
-	return s.patientRepo.Update(ctx, int32(id), updates)
+	return s.patientRepo.Update(ctx, domain.Patient{})
 }
 
 func (s *PatientService) DeletePatient(id int) error {

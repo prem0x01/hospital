@@ -59,7 +59,28 @@ func (r *AppointmentRepository) GetByID(ctx context.Context, id int32) (*domain.
 	if err != nil {
 		return nil, err
 	}
-	return toDomainAppointmentFromRow(a), nil
+	return toDomainAppointmentFromRow(*convertGetAppointmentByIDRowToGetAppointmentsRow(a)), nil
+}
+
+func convertGetAppointmentByIDRowToGetAppointmentsRow(a *queries.GetAppointmentByIDRow) *queries.GetAppointmentsRow {
+	if a == nil {
+		return nil
+	}
+	return &queries.GetAppointmentsRow{
+		ID:              a.ID,
+		PatientID:       a.PatientID,
+		DoctorID:        a.DoctorID,
+		AppointmentDate: a.AppointmentDate,
+		Status:          a.Status,
+		Notes:           a.Notes,
+		Diagnosis:       a.Diagnosis,
+		TreatmentPlan:   a.TreatmentPlan,
+		CreatedBy:       a.CreatedBy,
+		CreatedAt:       a.CreatedAt,
+		UpdatedAt:       a.UpdatedAt,
+		PatientName:     a.PatientName,
+		DoctorName:      a.DoctorName,
+	}
 }
 
 func (r *AppointmentRepository) Create(ctx context.Context, a *domain.Appointment) error {
@@ -132,7 +153,7 @@ func (r *AppointmentRepository) Update(ctx context.Context, id int32, updates ma
 		UPDATE appointments
 		SET %s
 		WHERE id = $%d`, strings.Join(setParts, ", "), argIndex)
-	_, err := r.dbConn.ExecContext(ctx, query, args...)
-	_, err := r.q.ExecContext(ctx, query, args...)
+	_, err := r.dbConn.Exec(ctx, query, args...)
+	_, err = r.dbConn.Exec(ctx, query, args...)
 	return err
 }

@@ -77,7 +77,7 @@ func (h *PatientHandler) UpdatePatient(c *gin.Context) {
 		return
 	}
 
-	if err := h.patientService.UpdatePatient(id, &req); err != nil {
+	if _, err := h.patientService.UpdatePatient(id, &req); err != nil {
 		c.JSON(http.StatusInternalServerError, utils.ErrorResponse("Failed to update patient", err.Error()))
 		return
 	}
@@ -92,7 +92,7 @@ func (h *PatientHandler) DeletePatient(c *gin.Context) {
 		return
 	}
 
-	// Check user role - only receptionists can delete patients
+	// check user role - only receptionists can delete patients
 	userRole := c.GetString("user_role")
 	if userRole != "receptionist" {
 		c.JSON(http.StatusForbidden, utils.ErrorResponse("Access denied", "Only receptionists can delete patients"))
